@@ -41,6 +41,16 @@ class liliputienTest(unittest.TestCase):
             urlIsValid = backend.uriValidator(url)
             self.assertTrue(urlIsValid)
 
+    def test_UrlValidation_False(self):
+        """Test method when you want add an URL"""
+        backend = liliputien.liliputien()
+        lstUrl2Validate = ['http//www.google.com/',
+                           'abcdc',
+                           '']
+        for url in lstUrl2Validate:
+            urlIsValid = backend.uriValidator(url)
+            self.assertFalse(urlIsValid)
+
     def test_addUrlRedirection_True(self):
         """Test method when you want add an URL"""
         backend = liliputien.liliputien()
