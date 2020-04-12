@@ -11,7 +11,7 @@ def id_generator(size=6, chars=string.ascii_uppercase + string.digits + string.a
 
 randomListRnd= {}
 countRnd = 0
-for x in range(1,5):
+for x in range(1,100000):
     zeIdRnd = id_generator()
     if zeIdRnd in randomListRnd.keys():
         # print("ERROR, key already there for Rnd")
