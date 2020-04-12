@@ -2,6 +2,7 @@
 #
 #####################################
 
+import liliputienErrors
 import pymongo
 import random
 import string
@@ -72,10 +73,10 @@ class liliputien():
             return : urlID
         """
 
+        # TODO Q: est-ce que je devrais avoir des exceptions thrower
         if not self.uriValidator(urlDestination):
-            return None
+            raise liliputienErrors.urlDontMatchCriteria
 
-        # validate urlDestination
         # get unid and confirme it
         # write it 
         # return the ID 

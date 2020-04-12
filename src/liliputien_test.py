@@ -1,10 +1,10 @@
 #!/usr/bin/python
 #######################################################
 
-import unittest
 import liliputien
+import liliputienErrors
 import pymongo
-
+import unittest
 
 class liliputienTest(unittest.TestCase):
     """unittest for liliputien backend class"""
@@ -51,10 +51,11 @@ class liliputienTest(unittest.TestCase):
             urlIsValid = backend.uriValidator(url)
             self.assertFalse(urlIsValid)
 
-    def test_addUrlRedirection_True(self):
+    def test_addUrlRedirection_False(self):
         """Test method when you want add an URL"""
         backend = liliputien.liliputien()
-        idURL = backend.addUrlRedirection("www.google.com")
+        with self.assertRaises(liliputienErrors.urlDontMatchCriteria):
+            idURL = backend.addUrlRedirection("www.google.com")
         # TODO add assert regex validating the idUrl
         # self.assertIsNotNone(idURL)
 
