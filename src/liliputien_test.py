@@ -7,17 +7,20 @@ import pymongo
 import unittest
 import mongomock
 
+
 class liliputienTest(unittest.TestCase):
     """unittest for liliputien backend class"""
 
     def test_databaseConnectionFalse(self):
         """Test database connexion."""
+        # pylint: disable=W
         with self.assertRaises(pymongo.errors.ServerSelectionTimeoutError):
             backend = liliputien.liliputien(dbLocator='mongodb://127.1.1.1:1111')
             dbLink = backend.connectDb(200, 200)
 
     def test_uniqnessOfIdGenerated(self):
         """Test if a subset of generated id are really uniq """
+        # pylint: disable=W
         backend = liliputien.liliputien()
 
         randomListRnd = {}
@@ -54,10 +57,11 @@ class liliputienTest(unittest.TestCase):
 
     def test_addUrlRedirection_URL_False(self):
         """Test method when you want add an URL"""
+        # pylint: disable=W
         backend = liliputien.liliputien()
         with self.assertRaises(liliputienErrors.urlDontMatchCriteria):
             idURL = backend.addUrlRedirection("www.google.com")
-    
+
     # def test_getUniqIdFalse(self):
         # need learn mock mongodb + decorate method generateRandomId
 
@@ -78,6 +82,7 @@ class liliputienTest(unittest.TestCase):
         backend.writeLiliURL(urlId="Fksi3s", urlTarget="https://www.google.com")
         entryFound = backend.dbCollection.find_one({'short': '/BaD'})
         self.assertIsNotNone(entryFound)
+
 
 if __name__ == '__main__':
     unittest.main()

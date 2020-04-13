@@ -84,7 +84,7 @@ class liliputien():
         try:
             result = urlparse(url)
             return all([result.scheme, result.netloc])
-        except:
+        except ValueError:
             return False
 
     def addUrlRedirection(self, urlDestination):
@@ -122,4 +122,3 @@ class liliputien():
             entry = None
 
         return entry
-
