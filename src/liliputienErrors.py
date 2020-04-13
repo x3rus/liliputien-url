@@ -26,3 +26,8 @@ class urlDontMatchCriteria(liliputienError):
 class urlIdNotFound(liliputienError):
     """Raised when url id is not found"""
     pass
+
+
+class urlIdMultipleOccurenceFound(liliputienError):
+    """Raised when multiple url id found"""
+    pass

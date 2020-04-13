@@ -3,6 +3,7 @@
 
 import liliputien
 import liliputienErrors
+import datetime
 import pymongo
 import unittest
 import mongomock
@@ -62,6 +63,56 @@ class liliputienTest(unittest.TestCase):
         with self.assertRaises(liliputienErrors.urlDontMatchCriteria):
             idURL = backend.addUrlRedirection("www.google.com")
 
+    def test_getUrlRedirection_Exception(self):
+        """Test method to get url destination base on url ID """
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        with self.assertRaises(liliputienErrors.urlIdNotFound):
+            backend.getUrlRedirection('/aaaaaa')
+
+    def test_getUrlRedirection_True(self):
+        """Test method to get url destination base on url ID """
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+
+        entryFound = backend.getUrlRedirection('/QQa83d')
+        self.assertEqual(entryFound, "https://www.lequipe.fr/Football")
+
+    def test_getUrlRedirection_FalseMultiple(self):
+        """Test method to get url destination base on url ID """
+        # pylint: disable=W
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+
+        # Add duplicate entry
+        dbEntry = {"short": "/QQa83d",
+                   "urlDst": "https://tube.lesamarien.fr/videos/trending?a-state=42",
+                   "date": datetime.datetime.utcnow()
+                   }
+        backend.dbCollection.insert_one(dbEntry).inserted_id
+
+        with self.assertRaises(liliputienErrors.urlIdMultipleOccurenceFound):
+            entryFound = backend.getUrlRedirection(urlId='/QQa83d', strict=True)
+
+    def test_getUrlRedirection_TrueMultiple(self):
+        """Test method to get url destination base on url ID """
+        # pylint: disable=W
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+
+        # Add duplicate entry
+        dbEntry = {"short": "/QQa83d",
+                   "urlDst": "https://tube.lesamarien.fr/videos/trending?a-state=42",
+                   "date": datetime.datetime.utcnow()
+                   }
+        backend.dbCollection.insert_one(dbEntry).inserted_id
+
+        entryFound = backend.getUrlRedirection(urlId='/QQa83d')
+        self.assertEqual(entryFound, "https://www.lequipe.fr/Football")
+
     # def test_getUniqIdFalse(self):
         # need learn mock mongodb + decorate method generateRandomId
 
@@ -81,7 +132,29 @@ class liliputienTest(unittest.TestCase):
         backend.dbCollection = mongomock.MongoClient().db.collection
         backend.writeLiliURL(urlId="Fksi3s", urlTarget="https://www.google.com")
         entryFound = backend.dbCollection.find_one({'short': '/BaD'})
-        self.assertIsNotNone(entryFound)
+        self.assertIsNone(entryFound)
+
+
+def AddFewEntryInMockedMongoDb(collection):
+    """ Add few entry in the database and return collection """
+    dbEntry = {"short": "/Dk8c3",
+               "urlDst": "http://www.google.com",
+               "date": datetime.datetime.utcnow()
+               }
+    collection.insert_one(dbEntry).inserted_id
+
+    dbEntry = {"short": "/sE8c2D",
+               "urlDst": "https://www.linuxfr.org",
+               "date": datetime.datetime.utcnow()
+               }
+    collection.insert_one(dbEntry).inserted_id
+
+    dbEntry = {"short": "/QQa83d",
+               "urlDst": "https://www.lequipe.fr/Football",
+               "date": datetime.datetime.utcnow()
+               }
+    collection.insert_one(dbEntry).inserted_id
+    return collection
 
 
 if __name__ == '__main__':

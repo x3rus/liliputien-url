@@ -89,7 +89,7 @@ class liliputien():
 
     def addUrlRedirection(self, urlDestination):
         """add an entry in mongodb, validate the entry
-            return : urlID
+            return : dictionnary with url info
             raise : liliputienErrors.urlDontMatchCriteria
         """
 
@@ -105,6 +105,25 @@ class liliputien():
             raise liliputienErrors.unableWritingUrlEntry
 
         return MongoEntry
+
+    def getUrlRedirection(self, urlId, strict=False):
+        """ retrieve from database the entry for urlId
+            return: target Url
+        """
+
+        countUrlId = self.dbCollection.count_documents({"short": urlId})
+        lstUrlFound = self.dbCollection.find({"short": urlId})
+
+        if countUrlId > 1 and strict is True:
+            raise liliputienErrors.urlIdMultipleOccurenceFound
+
+        if countUrlId == 0:
+            raise liliputienErrors.urlIdNotFound
+
+        return lstUrlFound[0]['urlDst']
+
+    # def test_getUniqIdFalse(self):
+        # need learn mock mongodb + decorate method generateRandomId
 
     def writeLiliURL(self, urlId, urlTarget):
         """ Write in the DB the entry """
