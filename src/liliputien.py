@@ -61,6 +61,25 @@ class liliputien():
             size = self.idSize
         return ''.join(random.choice(chars) for _ in range(size))
 
+    def getUniqUrlId(self, size=None, maxRetry=3):
+        """ Return Url ID uniq validat with the DB """
+        if size is None:
+            size = self.idSize
+
+        idUniq = False
+        returnedId = None
+        count = 0
+        # check if it's already in the DB
+        while idUniq is False and count <= maxRetry:
+            count += 1
+            id = self.getRandomURLId()
+            if not self.dbUrls.find_one({'short': id}):
+                idUniq = True
+                returnedId = id
+
+        return returnedId
+
+
     def uriValidator(self,url):
         try:
             result = urlparse(url)
@@ -71,13 +90,16 @@ class liliputien():
     def addUrlRedirection(self, urlDestination):
         """add an entry in mongodb, validate the entry
             return : urlID
+            raise : liliputienErrors.urlDontMatchCriteria
         """
 
-        # TODO Q: est-ce que je devrais avoir des exceptions thrower
         if not self.uriValidator(urlDestination):
             raise liliputienErrors.urlDontMatchCriteria
 
-        # get unid and confirme it
+        urlId = self.getUniqUrlId()
+        if urlId is None:
+            raise liliputienErrors.unableGettingUniqUrlID
+
         # write it 
         # return the ID 
         urlID = None
