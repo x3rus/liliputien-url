@@ -5,6 +5,7 @@ import liliputien
 import liliputienErrors
 import pymongo
 import unittest
+import mongomock
 
 class liliputienTest(unittest.TestCase):
     """unittest for liliputien backend class"""
@@ -59,9 +60,24 @@ class liliputienTest(unittest.TestCase):
     
     # def test_getUniqIdFalse(self):
         # need learn mock mongodb + decorate method generateRandomId
-    
-    
 
+    def test_writeLiliURL_True(self):
+        """ Test writing operation and check data available """
+        backend = liliputien.liliputien()
+        # create a fake mongodb collection
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.writeLiliURL(urlId="Fksi3s", urlTarget="https://www.google.com")
+        entryFound = backend.dbCollection.find_one({'short': '/Fksi3s'})
+        self.assertIsNotNone(entryFound)
+
+    def test_writeLiliURL_False(self):
+        """ Test writing operation and check data available """
+        backend = liliputien.liliputien()
+        # create a fake mongodb collection
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.writeLiliURL(urlId="Fksi3s", urlTarget="https://www.google.com")
+        entryFound = backend.dbCollection.find_one({'short': '/BaD'})
+        self.assertIsNotNone(entryFound)
 
 if __name__ == '__main__':
     unittest.main()

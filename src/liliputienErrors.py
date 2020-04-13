@@ -11,6 +11,10 @@ class unableGettingUniqUrlID(liliputienError):
     """Raised when url id is not found"""
     pass
 
+class unableWritingUrlEntry(liliputienError):
+    """Raised when url id is not found"""
+    pass
+
 class urlDontMatchCriteria(liliputienError):
     """Raised when url don't pass url validator"""
     pass

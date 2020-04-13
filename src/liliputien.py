@@ -2,6 +2,7 @@
 #
 #####################################
 
+import datetime
 import liliputienErrors
 import pymongo
 import random
@@ -79,8 +80,7 @@ class liliputien():
 
         return returnedId
 
-
-    def uriValidator(self,url):
+    def uriValidator(self,  url):
         try:
             result = urlparse(url)
             return all([result.scheme, result.netloc])
@@ -100,8 +100,26 @@ class liliputien():
         if urlId is None:
             raise liliputienErrors.unableGettingUniqUrlID
 
-        # write it 
-        # return the ID 
-        urlID = None
-        urlID = self.getRandomURLId()
-        return urlID
+        MongoEntry = self.writeLiliURL(urlId, urlDestination)
+        if MongoEntry is None:
+            raise liliputienErrors.unableWritingUrlEntry
+
+        return MongoEntry
+
+    def writeLiliURL(self, urlId, urlTarget):
+        """ Write in the DB the entry """
+
+        # one record
+        entry = {"short": "/" + urlId,
+                 "urlDst": urlTarget,
+                 "date": datetime.datetime.utcnow()
+                 }
+
+        entryMongoId = self.dbCollection.insert_one(entry).inserted_id
+        if entryMongoId is not None:
+            entry["mongoId"] = str(entryMongoId)
+        else:
+            entry = None
+
+        return entry
+
