@@ -2,7 +2,7 @@
 #######################################################
 
 import unittest
-from webui import app
+from webui import app, _get_dict_from_flashed_messages
 
 
 class liliputienWebTest(unittest.TestCase):
@@ -35,6 +35,12 @@ class liliputienWebTest(unittest.TestCase):
         response = self.app.get('/', follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(b'Not in the Page', response.data)
-    
+
+    def test_get_dict_from_flashed_messages_True(self):
+        flashedMessageOriginal = ['targetUrl ; http://www.google.com', 'otherInfo ; bonjour']
+
+        dictFlashedMsg = _get_dict_from_flashed_messages(flashedMessageOriginal)
+        self.assertEqual(dictFlashedMsg['targetUrl'],'http://www.google.com')
+
 if __name__ == "__main__":
     unittest.main()
