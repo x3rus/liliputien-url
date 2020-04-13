@@ -56,51 +56,20 @@ class liliputien():
 
         return None
 
-    def getRandomURLId(self, size=None, chars=string.ascii_uppercase + string.digits + string.ascii_lowercase):
-        """ Generate the random ID /fk8dS3 """
-        if size is None:
-            size = self.idSize
-        return ''.join(random.choice(chars) for _ in range(size))
-
-    def getUniqUrlId(self, size=None, maxRetry=3):
-        """ Return Url ID uniq validat with the DB """
-        if size is None:
-            size = self.idSize
-
-        idUniq = False
-        returnedId = None
-        count = 0
-        # check if it's already in the DB
-        while idUniq is False and count <= maxRetry:
-            count += 1
-            id = self.getRandomURLId()
-            if not self.dbCollection.find_one({'short': id}):
-                idUniq = True
-                returnedId = id
-
-        return returnedId
-
-    def uriValidator(self,  url):
-        try:
-            result = urlparse(url)
-            return all([result.scheme, result.netloc])
-        except ValueError:
-            return False
-
     def addUrlRedirection(self, urlDestination):
         """add an entry in mongodb, validate the entry
             return : dictionnary with url info
             raise : liliputienErrors.urlDontMatchCriteria
         """
 
-        if not self.uriValidator(urlDestination):
+        if not self._uriValidator(urlDestination):
             raise liliputienErrors.urlDontMatchCriteria
 
-        urlId = self.getUniqUrlId()
+        urlId = self._getUniqUrlId()
         if urlId is None:
             raise liliputienErrors.unableGettingUniqUrlID
 
-        MongoEntry = self.writeLiliURL(urlId, urlDestination)
+        MongoEntry = self._writeLiliURL(urlId, urlDestination)
         if MongoEntry is None:
             raise liliputienErrors.unableWritingUrlEntry
 
@@ -122,10 +91,38 @@ class liliputien():
 
         return lstUrlFound[0]['urlDst']
 
-    # def test_getUniqIdFalse(self):
-        # need learn mock mongodb + decorate method generateRandomId
+    def _getRandomURLId(self, size=None, chars=string.ascii_uppercase + string.digits + string.ascii_lowercase):
+        """ Generate the random ID /fk8dS3 """
+        if size is None:
+            size = self.idSize
+        return ''.join(random.choice(chars) for _ in range(size))
 
-    def writeLiliURL(self, urlId, urlTarget):
+    def _getUniqUrlId(self, size=None, maxRetry=3):
+        """ Return Url ID uniq validat with the DB """
+        if size is None:
+            size = self.idSize
+
+        idUniq = False
+        returnedId = None
+        count = 0
+        # check if it's already in the DB
+        while idUniq is False and count <= maxRetry:
+            count += 1
+            id = self._getRandomURLId()
+            if not self.dbCollection.find_one({'short': id}):
+                idUniq = True
+                returnedId = id
+
+        return returnedId
+
+    def _uriValidator(self,  url):
+        try:
+            result = urlparse(url)
+            return all([result.scheme, result.netloc])
+        except ValueError:
+            return False
+
+    def _writeLiliURL(self, urlId, urlTarget):
         """ Write in the DB the entry """
 
         # one record

@@ -27,7 +27,7 @@ class liliputienTest(unittest.TestCase):
         randomListRnd = {}
         countRnd = 0
         for x in range(1, 100000):
-            zeIdRnd = backend.getRandomURLId()
+            zeIdRnd = backend._getRandomURLId()
             if zeIdRnd in randomListRnd.keys():
                 # print("ERROR, key already there for Rnd")
                 countRnd += 1
@@ -43,7 +43,7 @@ class liliputienTest(unittest.TestCase):
                            'http://www.cwi.nl:80/%7Eguido/Python.html',
                            'https://www.linuxfr.org/news/']
         for url in lstUrl2Validate:
-            urlIsValid = backend.uriValidator(url)
+            urlIsValid = backend._uriValidator(url)
             self.assertTrue(urlIsValid)
 
     def test_UrlValidation_False(self):
@@ -53,7 +53,7 @@ class liliputienTest(unittest.TestCase):
                            'abcdc',
                            '']
         for url in lstUrl2Validate:
-            urlIsValid = backend.uriValidator(url)
+            urlIsValid = backend._uriValidator(url)
             self.assertFalse(urlIsValid)
 
     def test_addUrlRedirection_URL_False(self):
@@ -121,7 +121,7 @@ class liliputienTest(unittest.TestCase):
         backend = liliputien.liliputien()
         # create a fake mongodb collection
         backend.dbCollection = mongomock.MongoClient().db.collection
-        backend.writeLiliURL(urlId="Fksi3s", urlTarget="https://www.google.com")
+        backend._writeLiliURL(urlId="Fksi3s", urlTarget="https://www.google.com")
         entryFound = backend.dbCollection.find_one({'short': '/Fksi3s'})
         self.assertIsNotNone(entryFound)
 
@@ -130,7 +130,7 @@ class liliputienTest(unittest.TestCase):
         backend = liliputien.liliputien()
         # create a fake mongodb collection
         backend.dbCollection = mongomock.MongoClient().db.collection
-        backend.writeLiliURL(urlId="Fksi3s", urlTarget="https://www.google.com")
+        backend._writeLiliURL(urlId="Fksi3s", urlTarget="https://www.google.com")
         entryFound = backend.dbCollection.find_one({'short': '/BaD'})
         self.assertIsNone(entryFound)
 
