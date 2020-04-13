@@ -29,7 +29,7 @@ class liliputien():
         """Init liliputien"""
         self.databaseName = databaseName
         self.dbLocator = dbLocator
-        self.dbUrls = None
+        self.dbCollection = None
         self.collection = collection
         self.idSize = idSize
         self.passwd = urllib.parse.quote_plus(passwd)
@@ -50,8 +50,8 @@ class liliputien():
         if mongoSrv.is_mongos:
             # Select DB  / create it
             liliDb = mongoSrv[self.databaseName]
-            self.dbUrls = liliDb.dbUrl                 # TODO check to use self.collection intend of dbUrl
-            return self.dbUrls
+            self.dbCollection = liliDb.dbUrl                 # TODO check to use self.collection intend of dbUrl
+            return self.dbCollection
 
         return None
 
@@ -73,7 +73,7 @@ class liliputien():
         while idUniq is False and count <= maxRetry:
             count += 1
             id = self.getRandomURLId()
-            if not self.dbUrls.find_one({'short': id}):
+            if not self.dbCollection.find_one({'short': id}):
                 idUniq = True
                 returnedId = id
 

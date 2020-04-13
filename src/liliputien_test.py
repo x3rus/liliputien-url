@@ -51,13 +51,16 @@ class liliputienTest(unittest.TestCase):
             urlIsValid = backend.uriValidator(url)
             self.assertFalse(urlIsValid)
 
-    def test_addUrlRedirection_False(self):
+    def test_addUrlRedirection_URL_False(self):
         """Test method when you want add an URL"""
         backend = liliputien.liliputien()
         with self.assertRaises(liliputienErrors.urlDontMatchCriteria):
             idURL = backend.addUrlRedirection("www.google.com")
-        # TODO add assert regex validating the idUrl
-        # self.assertIsNotNone(idURL)
+    
+    # def test_getUniqIdFalse(self):
+        # need learn mock mongodb + decorate method generateRandomId
+    
+    
 
 
 if __name__ == '__main__':
