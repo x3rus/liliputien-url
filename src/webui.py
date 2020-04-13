@@ -6,11 +6,15 @@ from flask import Flask, render_template, flash, redirect, request, get_flashed_
 from markupsafe import escape
 from flask import render_template
 from forms.add import UrlCreateEntry
+from liliputien import liliputien
 
 app = Flask(__name__)
 
 # TODO change this
 app.config['SECRET_KEY'] = 'you-will-never-guess'
+backend = liliputien(user="root",passwd="ze_password")
+if backend.connectDb() is None:
+    print("not connected")
 
 # TODO : add multiple possibility index.html index.htm
 @app.route('/')
@@ -35,8 +39,12 @@ def added():
     urlId = "abk3s2"
     try:
         urlDst = msgEvents['targetUrl']
+        urlId, _ = backend.addUrlRedirection(urlDst)
     except KeyError:
         urlDst = ""
+
+    if urlId is None:
+        urlId = "ERROR happened"
     return render_template('added.html', urlId=urlId, urlDestination=urlDst)
 
 def _get_dict_from_flashed_messages(flashedMessage):
