@@ -7,6 +7,7 @@ from markupsafe import escape
 from flask import render_template
 from forms.add import UrlCreateEntry
 from liliputien import liliputien
+import pymongo.errors
 
 app = Flask(__name__)
 
@@ -40,8 +41,8 @@ def added():
     try:
         urlDst = msgEvents['targetUrl']
         urlId, _ = backend.addUrlRedirection(urlDst)
-    except KeyError:
-        urlDst = ""
+    except (KeyError, pymongo.errors.ServerSelectionTimeoutError) as e:
+        return redirect('/error')
 
     if urlId is None:
         urlId = "ERROR happened"

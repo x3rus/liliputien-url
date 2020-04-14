@@ -36,6 +36,12 @@ class liliputienWebTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(b'Not in the Page', response.data)
 
+    def test_add_True(self):
+        """Test home page."""
+        response = self.app.get('/add', follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'urlTarget', response.data)
+
     def test_get_dict_from_flashed_messages_True(self):
         flashedMessageOriginal = ['targetUrl ; http://www.google.com', 'otherInfo ; bonjour']
 
