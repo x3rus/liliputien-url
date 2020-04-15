@@ -13,7 +13,7 @@ app = Flask(__name__)
 
 # TODO change this
 app.config['SECRET_KEY'] = 'you-will-never-guess'
-backend = liliputien(user="root",passwd="ze_password")
+backend = liliputien(user="root", passwd="ze_password")
 if backend.connectDb() is None:
     print("not connected")
 
@@ -35,18 +35,22 @@ def add():
 @app.route('/added', methods=['GET', 'POST'])
 def added():
     msgEvents = _get_dict_from_flashed_messages(get_flashed_messages())
+
     if msgEvents is None:
         return render_template('added.html', urlId="", urlDestination="")
-    urlId = "abk3s2"
     try:
-        urlDst = msgEvents['targetUrl']
+        # urlDst = msgEvents['targetUrl']
+        urlDst = request.form.get('targetUrl')
+        print(urlDst)
         urlId, _ = backend.addUrlRedirection(urlDst)
     except (KeyError, pymongo.errors.ServerSelectionTimeoutError) as e:
+        flash('error ; {}'.format("error"))
         return redirect('/error')
 
     if urlId is None:
         urlId = "ERROR happened"
     return render_template('added.html', urlId=urlId, urlDestination=urlDst)
+
 
 def _get_dict_from_flashed_messages(flashedMessage):
     """ Return a dictionnary from flashed message """

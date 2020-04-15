@@ -2,7 +2,8 @@
 #######################################################
 
 import unittest
-from webui import app, _get_dict_from_flashed_messages
+from webui import app, _get_dict_from_flashed_messages, backend
+import mongomock
 
 
 class liliputienWebTest(unittest.TestCase):
@@ -41,6 +42,13 @@ class liliputienWebTest(unittest.TestCase):
         response = self.app.get('/add', follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'urlTarget', response.data)
+
+    def test_added_True(self):
+        """ test the added page """
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        self.app.flash('targetUrl ; {}'.format("https://www.lemonde.fr"))
+        rv = self.app.post('/added', follow_redirects=True)
+        self.assertEqual(rv.status_code, 200)
 
     def test_get_dict_from_flashed_messages_True(self):
         flashedMessageOriginal = ['targetUrl ; http://www.google.com', 'otherInfo ; bonjour']
