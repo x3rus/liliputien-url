@@ -57,7 +57,10 @@ def _get_dict_from_flashed_messages(flashedMessage):
     return dictFlashedMsg
 
 # # TODO : Add regex 6 car
-# @app.route('/<urlId>')
-# def show_urlId(urlId):
-#     # show the Url Requested
-#     return 'Url Id requested %s' % escape(urlId)
+@app.route('/<urlId>')
+def show_urlId(urlId):
+    # show the Url Requested
+    urlTarget = backend.getUrlRedirection(urlId)
+    print(urlTarget)
+
+    return render_template('redirect.html', title='redirection', urlTarget=urlTarget, delais=5)

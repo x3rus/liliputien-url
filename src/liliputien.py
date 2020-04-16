@@ -123,7 +123,7 @@ class liliputien():
         """ Write in the DB the entry """
 
         # one record
-        entry = {"short": "/" + urlId,
+        entry = {"short": urlId,
                  "urlDst": urlTarget,
                  "date": datetime.datetime.utcnow()
                  }
