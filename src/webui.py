@@ -26,31 +26,22 @@ def welcome():
 def add():
     form = UrlCreateEntry()
     if form.validate_on_submit():
-        # TODO : check not sure it's the best way to pass info... :-/
-        flash('targetUrl ; {}'.format(form.urlTarget.data))
-        return redirect('/added')
+        try:
+            # urlDst = msgEvents['targetUrl']
+            urlDst = form.urlTarget.data
+            print(urlDst)
+            urlId, _ = backend.addUrlRedirection(urlDst)
+        except (KeyError, pymongo.errors.ServerSelectionTimeoutError) as e:
+            flash("error;" + str(e), category='error')
+            return redirect('/error')
+        # TODO : change url for /urlId/info containe detail about the link
+        return render_template('added.html', urlId=urlId, urlDestination=urlDst)
     return render_template('add.html', title='Enter Url', form=form)
 
-
-@app.route('/added', methods=['GET', 'POST'])
-def added():
+@app.route('/error')
+def error():
     msgEvents = _get_dict_from_flashed_messages(get_flashed_messages())
-
-    if msgEvents is None:
-        return render_template('added.html', urlId="", urlDestination="")
-    try:
-        # urlDst = msgEvents['targetUrl']
-        urlDst = request.form.get('targetUrl')
-        print(urlDst)
-        urlId, _ = backend.addUrlRedirection(urlDst)
-    except (KeyError, pymongo.errors.ServerSelectionTimeoutError) as e:
-        flash('error ; {}'.format("error"))
-        return redirect('/error')
-
-    if urlId is None:
-        urlId = "ERROR happened"
-    return render_template('added.html', urlId=urlId, urlDestination=urlDst)
-
+    return render_template('error.html', title='HomePage', errMessage2print=msgEvents)
 
 def _get_dict_from_flashed_messages(flashedMessage):
     """ Return a dictionnary from flashed message """
