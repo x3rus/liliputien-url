@@ -11,7 +11,6 @@ class liliputienWebTest(unittest.TestCase):
 
     # executed prior to each test
     def setUp(self):
-        app.config['SECRET_KEY'] = 'Ze-test-key-not-secure'
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
         app.config['DEBUG'] = False
@@ -25,6 +24,7 @@ class liliputienWebTest(unittest.TestCase):
 
     # tests
 
+    # TODO : merge test with table test
     def test_homepage_True(self):
         """Test home page."""
         response = self.app.get('/', follow_redirects=True)
@@ -43,12 +43,23 @@ class liliputienWebTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'urlTarget', response.data)
 
-    def test_added_True(self):
-        """ test the added page """
+    def test_add_form_True(self):
+        """Test add form without enter url target """
         backend.dbCollection = mongomock.MongoClient().db.collection
-        self.app.flash('targetUrl ; {}'.format("https://www.lemonde.fr"))
-        rv = self.app.post('/added', follow_redirects=True)
-        self.assertEqual(rv.status_code, 200)
+        response = self.app.post('/add', data=dict(
+                                  urlTarget="http://www.google.com"), follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        print(response.data)
+        self.assertIn(b'Your link is added', response.data)
+
+    def test_add_form_False(self):
+        """Test add form without enter url target """
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        response = self.app.post('/add', data=dict(
+                                  urlTarget="not_a_valide_url"), follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        print(response.data)
+        self.assertIn(b'Oupss', response.data)
 
     def test_get_dict_from_flashed_messages_True(self):
         flashedMessageOriginal = ['targetUrl ; http://www.google.com', 'otherInfo ; bonjour']
