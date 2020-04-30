@@ -48,13 +48,10 @@ class liliputien():
             mongoSrv = pymongo.MongoClient(self.dbLocator, connectTimeoutMS=connectTimeoutMS,
                                            serverSelectionTimeoutMS=serverSelectionTimeoutMS)
 
-        if mongoSrv.is_mongos:
-            # Select DB  / create it
-            liliDb = mongoSrv[self.databaseName]
-            self.dbCollection = liliDb.dbUrl                 # TODO check to use self.collection intend of dbUrl
-            return self.dbCollection
-
-        return None
+        # Select DB  / create it
+        liliDb = mongoSrv[self.databaseName]
+        self.dbCollection = liliDb.dbUrl                 # TODO check to use self.collection intend of dbUrl
+        return self.dbCollection
 
     def addUrlRedirection(self, urlDestination):
         """add an entry in mongodb, validate the entry
@@ -73,7 +70,7 @@ class liliputien():
         if MongoEntry is None:
             raise liliputienErrors.unableWritingUrlEntry
 
-        return MongoEntry
+        return urlId, MongoEntry
 
     def getUrlRedirection(self, urlId, strict=False):
         """ retrieve from database the entry for urlId
@@ -126,7 +123,7 @@ class liliputien():
         """ Write in the DB the entry """
 
         # one record
-        entry = {"short": "/" + urlId,
+        entry = {"short": urlId,
                  "urlDst": urlTarget,
                  "date": datetime.datetime.utcnow()
                  }
