@@ -59,7 +59,7 @@ class liliputienWebTest(unittest.TestCase):
                                   urlTarget="not_a_valide_url"), follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         print(response.data)
-        self.assertIn(b'Oupss', response.data)
+        self.assertIn(b'Ouppsss', response.data)
 
     def test_get_dict_from_flashed_messages_True(self):
         flashedMessageOriginal = ['targetUrl ; http://www.google.com', 'otherInfo ; bonjour']

@@ -123,8 +123,8 @@ class liliputienTest(unittest.TestCase):
         backend = liliputien.liliputien()
         # create a fake mongodb collection
         backend.dbCollection = mongomock.MongoClient().db.collection
-        backend._writeLiliURL(urlId="Fksi3s", urlTarget="https://www.google.com")
-        entryFound = backend.dbCollection.find_one({'short': '/Fksi3s'})
+        backend._writeLiliURL(urlId="/Fksi3a", urlTarget="https://www.google.com")
+        entryFound = backend.dbCollection.find_one({'short': '/Fksi3a'})
         self.assertIsNotNone(entryFound)
 
     def test_writeLiliURL_False(self):

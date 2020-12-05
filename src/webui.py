@@ -7,6 +7,7 @@ from markupsafe import escape
 from flask import render_template
 from forms.add import UrlCreateEntry
 from liliputien import liliputien
+import liliputienErrors
 import pymongo.errors
 
 app = Flask(__name__)
@@ -32,6 +33,9 @@ def add():
             print(urlDst)
             urlId, _ = backend.addUrlRedirection(urlDst)
         except (KeyError, pymongo.errors.ServerSelectionTimeoutError) as e:
+            flash("error;" + str(e), category='error')
+            return redirect('/error')
+        except (liliputienErrors.urlDontMatchCriteria) as e:
             flash("error;" + str(e), category='error')
             return redirect('/error')
         # TODO : change url for /urlId/info containe detail about the link
