@@ -31,7 +31,6 @@ def add():
         try:
             # urlDst = msgEvents['targetUrl']
             urlDst = form.urlTarget.data
-            print(urlDst)
             urlId, _ = backend.addUrlRedirection(urlDst)
         except (KeyError, pymongo.errors.ServerSelectionTimeoutError) as e:
             flash("error;" + str(e), category='error')
@@ -69,7 +68,6 @@ def _get_dict_from_flashed_messages(flashedMessage):
 def show_urlId(urlId):
     # show the Url Requested
     urlTarget = backend.getUrlRedirection(urlId)
-    print(urlTarget)
 
     return render_template('redirect.html', title='redirection', urlTarget=urlTarget, delais=5)
 
@@ -83,4 +81,7 @@ def get_api_urls():
         urls[indexId]['_id'] = str(url['_id'])
         indexId = indexId + 1
 
-    return jsonify(urls)
+    with app.app_context():
+        urlsJson = jsonify(urls)
+
+    return urlsJson

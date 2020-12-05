@@ -50,7 +50,6 @@ class liliputienWebTest(unittest.TestCase):
         response = self.app.post('/add', data=dict(
                                   urlTarget="http://www.google.com"), follow_redirects=True)
         self.assertEqual(response.status_code, 200)
-        print(response.data)
         self.assertIn(b'Your link is added', response.data)
 
     def test_add_form_False(self):
@@ -59,7 +58,6 @@ class liliputienWebTest(unittest.TestCase):
         response = self.app.post('/add', data=dict(
                                   urlTarget="not_a_valide_url"), follow_redirects=True)
         self.assertEqual(response.status_code, 200)
-        print(response.data)
         self.assertIn(b'Ouppsss', response.data)
 
     def test_get_dict_from_flashed_messages_True(self):
@@ -75,9 +73,7 @@ class liliputienWebTest(unittest.TestCase):
 
     def test_get_api_urls_Populate_True(self):
         backend.dbCollection = mongomock.MongoClient().db.collection
-
-        with self.app.app_context():
-            backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
         response = self.app.get('/lili/api/v1.0/urls', follow_redirects=True)
         self.assertIn(b'/QQa83d', response.data)
 
