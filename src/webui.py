@@ -2,9 +2,8 @@
 #
 #######################################
 
-from flask import Flask, render_template, flash, redirect, request, get_flashed_messages
-from markupsafe import escape
-from flask import render_template
+from flask import Flask, render_template, flash, redirect,  get_flashed_messages
+# from markupsafe import escape
 from forms.add import UrlCreateEntry
 from liliputien import liliputien
 import liliputienErrors
@@ -18,10 +17,12 @@ backend = liliputien(user="root", passwd="ze_password")
 if backend.connectDb() is None:
     print("not connected")
 
+
 # TODO : add multiple possibility index.html index.htm
 @app.route('/')
 def welcome():
     return render_template('index.html', title='HomePage')
+
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
@@ -42,10 +43,12 @@ def add():
         return render_template('added.html', urlId=urlId, urlDestination=urlDst)
     return render_template('add.html', title='Enter Url', form=form)
 
+
 @app.route('/error')
 def error():
     msgEvents = _get_dict_from_flashed_messages(get_flashed_messages())
     return render_template('error.html', title='HomePage', errMessage2print=msgEvents)
+
 
 def _get_dict_from_flashed_messages(flashedMessage):
     """ Return a dictionnary from flashed message """
@@ -59,6 +62,7 @@ def _get_dict_from_flashed_messages(flashedMessage):
         return None
 
     return dictFlashedMsg
+
 
 # # TODO : Add regex 6 car
 @app.route('/<urlId>')
