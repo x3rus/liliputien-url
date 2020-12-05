@@ -4,9 +4,9 @@
 import liliputien
 import liliputienErrors
 import datetime
-import pymongo
 import unittest
 import mongomock
+# import pymongo
 
 
 class liliputienTest(unittest.TestCase):
@@ -63,7 +63,7 @@ class liliputienTest(unittest.TestCase):
         # pylint: disable=W
         backend = liliputien.liliputien()
         with self.assertRaises(liliputienErrors.urlDontMatchCriteria):
-            idURL = backend.addUrlRedirection("www.google.com")
+            backend.addUrlRedirection("www.google.com")
 
     def test_getUrlRedirection_Exception(self):
         """Test method to get url destination base on url ID """
@@ -96,7 +96,7 @@ class liliputienTest(unittest.TestCase):
         backend.dbCollection.insert_one(dbEntry).inserted_id
 
         with self.assertRaises(liliputienErrors.urlIdMultipleOccurenceFound):
-            entryFound = backend.getUrlRedirection(urlId='/QQa83d', strict=True)
+            backend.getUrlRedirection(urlId='/QQa83d', strict=True)
 
     def test_getUrlRedirection_TrueMultiple(self):
         """Test method to get url destination base on url ID """
@@ -135,6 +135,15 @@ class liliputienTest(unittest.TestCase):
         backend._writeLiliURL(urlId="Fksi3s", urlTarget="https://www.google.com")
         entryFound = backend.dbCollection.find_one({'short': '/BaD'})
         self.assertIsNone(entryFound)
+
+    def test_List_Urls_True(self):
+        """Test method when you want retrieve all URLs"""
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        urls = backend.getUrls()
+        self.assertEqual(urls[0]['urlDst'], "http://www.google.com")
+        self.assertEqual(urls[1]['short'], "/sE8c2D")
 
 
 def AddFewEntryInMockedMongoDb(collection):

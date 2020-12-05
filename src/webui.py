@@ -2,7 +2,7 @@
 #
 #######################################
 
-from flask import Flask, render_template, flash, redirect,  get_flashed_messages
+from flask import Flask, render_template, flash, redirect,  get_flashed_messages, jsonify
 # from markupsafe import escape
 from forms.add import UrlCreateEntry
 from liliputien import liliputien
@@ -72,3 +72,15 @@ def show_urlId(urlId):
     print(urlTarget)
 
     return render_template('redirect.html', title='redirection', urlTarget=urlTarget, delais=5)
+
+
+# API ###
+@app.route('/lili/api/v1.0/urls', methods=['GET'])
+def get_api_urls():
+    urls = backend.getUrls()
+    indexId = 0
+    for url in urls:
+        urls[indexId]['_id'] = str(url['_id'])
+        indexId = indexId + 1
+
+    return jsonify(urls)

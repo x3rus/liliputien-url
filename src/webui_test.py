@@ -2,8 +2,9 @@
 #######################################################
 
 import unittest
-from webui import app, _get_dict_from_flashed_messages, backend
+from webui import app, _get_dict_from_flashed_messages, backend, get_api_urls
 import mongomock
+import datetime
 
 
 class liliputienWebTest(unittest.TestCase):
@@ -65,7 +66,43 @@ class liliputienWebTest(unittest.TestCase):
         flashedMessageOriginal = ['targetUrl ; http://www.google.com', 'otherInfo ; bonjour']
 
         dictFlashedMsg = _get_dict_from_flashed_messages(flashedMessageOriginal)
-        self.assertEqual(dictFlashedMsg['targetUrl'],'http://www.google.com')
+        self.assertEqual(dictFlashedMsg['targetUrl'], 'http://www.google.com')
+
+    def test_get_api_urls_Empty_True(self):
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        urls = get_api_urls()
+        self.assertIsNotNone(urls)
+
+    def test_get_api_urls_Populate_True(self):
+        backend.dbCollection = mongomock.MongoClient().db.collection
+
+        with self.app.app_context():
+            backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        response = self.app.get('/lili/api/v1.0/urls', follow_redirects=True)
+        self.assertIn(b'/QQa83d', response.data)
+
+
+def AddFewEntryInMockedMongoDb(collection):
+    """ Add few entry in the database and return collection """
+    dbEntry = {"short": "/Dk8c3",
+               "urlDst": "http://www.google.com",
+               "date": datetime.datetime.utcnow()
+               }
+    collection.insert_one(dbEntry).inserted_id
+
+    dbEntry = {"short": "/sE8c2D",
+               "urlDst": "https://www.linuxfr.org",
+               "date": datetime.datetime.utcnow()
+               }
+    collection.insert_one(dbEntry).inserted_id
+
+    dbEntry = {"short": "/QQa83d",
+               "urlDst": "https://www.lequipe.fr/Football",
+               "date": datetime.datetime.utcnow()
+               }
+    collection.insert_one(dbEntry).inserted_id
+    return collection
+
 
 if __name__ == "__main__":
     unittest.main()

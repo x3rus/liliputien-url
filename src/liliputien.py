@@ -88,6 +88,14 @@ class liliputien():
 
         return lstUrlFound[0]['urlDst']
 
+    def getUrls(self, strict=False):
+        """ retrieve all url from database
+            return: table of dictionnary
+        """
+
+        return list(self.dbCollection.find())
+#        return list(self.dbCollection.find({}, {'_id': False}))
+
     def _getRandomURLId(self, size=None, chars=string.ascii_uppercase + string.digits + string.ascii_lowercase):
         """ Generate the random ID /fk8dS3 """
         if size is None:
