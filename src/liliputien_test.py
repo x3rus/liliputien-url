@@ -145,6 +145,23 @@ class liliputienTest(unittest.TestCase):
         self.assertEqual(urls[0]['urlDst'], "http://www.google.com")
         self.assertEqual(urls[1]['short'], "/sE8c2D")
 
+    def test_get_url_base_on_short_True(self):
+        """Test method get_url with short_url parameter"""
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        url = backend.getUrl('/sE8c2D')
+        self.assertEqual(url[0]['urlDst'], "https://www.linuxfr.org")
+        self.assertEqual(url[0]['short'], "/sE8c2D")
+
+    def test_get_url_base_on_short_False(self):
+        """Test method get_url with short_url parameter"""
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        url = backend.getUrl('/aaabbb')
+        self.assertEqual(len(url), 0)
+
 
 def AddFewEntryInMockedMongoDb(collection):
     """ Add few entry in the database and return collection """

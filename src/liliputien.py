@@ -96,6 +96,14 @@ class liliputien():
         return list(self.dbCollection.find())
 #        return list(self.dbCollection.find({}, {'_id': False}))
 
+    def getUrl(self, short_url, strict=False):
+        """ retrieve one url from database base one the short_url
+            param : string short_url
+            return: table of dictionnary
+        """
+
+        return list(self.dbCollection.find({"short": short_url}))
+
     def _getRandomURLId(self, size=None, chars=string.ascii_uppercase + string.digits + string.ascii_lowercase):
         """ Generate the random ID /fk8dS3 """
         if size is None:

@@ -2,7 +2,7 @@
 #
 #######################################
 
-from flask import Flask, render_template, flash, redirect,  get_flashed_messages, jsonify
+from flask import Flask, render_template, flash, redirect,  get_flashed_messages, jsonify, abort
 # from markupsafe import escape
 from forms.add import UrlCreateEntry
 from liliputien import liliputien
@@ -72,16 +72,33 @@ def show_urlId(urlId):
     return render_template('redirect.html', title='redirection', urlTarget=urlTarget, delais=5)
 
 
+def convert_url_for_json(url_entry_src):
+    """ Change _id entry to string otherwize it cannot be jsonify """
+    indexId = 0
+    for url in url_entry_src:
+        url_entry_src[indexId]['_id'] = str(url['_id'])
+        indexId = indexId + 1
+
+    return url_entry_src
+
+
 # API ###
 @app.route('/lili/api/v1.0/urls', methods=['GET'])
 def get_api_urls():
     urls = backend.getUrls()
-    indexId = 0
-    for url in urls:
-        urls[indexId]['_id'] = str(url['_id'])
-        indexId = indexId + 1
-
     with app.app_context():
-        urlsJson = jsonify(urls)
+        urlsJson = jsonify({'urls': convert_url_for_json(urls)})
 
     return urlsJson
+
+
+@app.route('/lili/api/v1.0/urls/<string:short_url>', methods=['GET'])
+def get_task(short_url):
+    try:
+        urlTarget = backend.getUrl("/" + short_url)
+    except liliputienErrors.urlIdNotFound:
+        abort(404)
+    except liliputienErrors.urlIdMultipleOccurenceFound:
+        abort(404)
+
+    return jsonify({'url': convert_url_for_json(urlTarget)})

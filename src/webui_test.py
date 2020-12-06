@@ -66,28 +66,38 @@ class liliputienWebTest(unittest.TestCase):
         dictFlashedMsg = _get_dict_from_flashed_messages(flashedMessageOriginal)
         self.assertEqual(dictFlashedMsg['targetUrl'], 'http://www.google.com')
 
-    def test_get_api_urls_Empty_True(self):
+    def test_get_api_urls_empty_True(self):
         backend.dbCollection = mongomock.MongoClient().db.collection
         urls = get_api_urls()
         self.assertIsNotNone(urls)
 
-    def test_get_api_urls_Populate_True(self):
+    def test_get_api_urls_populate_True(self):
         backend.dbCollection = mongomock.MongoClient().db.collection
         backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
         response = self.app.get('/lili/api/v1.0/urls', follow_redirects=True)
-        self.assertIn(b'/QQa83d', response.data)
+        self.assertIn(b'"short":"/Dk8c3","urlDst":"http://www.google.com"', response.data)
+
+    # TODO : add test for validating it's json result
+    # def test_get_api_urls_populate_True(self):
+
+    def test_get_api_url_populate_one_url_True(self):
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        response = self.app.get('/lili/api/v1.0/urls/QQa83d', follow_redirects=True)
+        self.assertIn(b'"short":"/QQa83d","urlDst":"https://www.lequipe.fr/Football"', response.data)
+
+    def test_get_api_url_populate_one_url_False(self):
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        response = self.app.get('/lili/api/v1.0/urls/aaabbb', follow_redirects=True)
+        self.assertIn(b'[]', response.data)
+
 
 
 def AddFewEntryInMockedMongoDb(collection):
     """ Add few entry in the database and return collection """
     dbEntry = {"short": "/Dk8c3",
                "urlDst": "http://www.google.com",
-               "date": datetime.datetime.utcnow()
-               }
-    collection.insert_one(dbEntry).inserted_id
-
-    dbEntry = {"short": "/sE8c2D",
-               "urlDst": "https://www.linuxfr.org",
                "date": datetime.datetime.utcnow()
                }
     collection.insert_one(dbEntry).inserted_id
