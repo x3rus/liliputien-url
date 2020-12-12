@@ -5,6 +5,7 @@ import unittest
 from webui import app, _get_dict_from_flashed_messages, backend, get_api_urls
 import mongomock
 import datetime
+import json
 
 
 class liliputienWebTest(unittest.TestCase):
@@ -22,8 +23,6 @@ class liliputienWebTest(unittest.TestCase):
     # executed after each test
     def tearDown(self):
         pass
-
-    # tests
 
     # TODO : merge test with table test
     def test_homepage_True(self):
@@ -51,6 +50,15 @@ class liliputienWebTest(unittest.TestCase):
                                   urlTarget="http://www.google.com"), follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Your link is added', response.data)
+
+    def test_add_api_url_True(self):
+        """Test add from api"""
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        response = self.app.post('/lili/api/v1.0/urls',
+                                 data=json.dumps(dict(urlDst='http://www.google.com')),
+                                 content_type='application/json')
+        self.assertIn(b'www.google.com', response.data)
 
     def test_add_form_False(self):
         """Test add form without enter url target """
@@ -91,7 +99,6 @@ class liliputienWebTest(unittest.TestCase):
         backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
         response = self.app.get('/lili/api/v1.0/urls/aaabbb', follow_redirects=True)
         self.assertIn(b'[]', response.data)
-
 
 
 def AddFewEntryInMockedMongoDb(collection):

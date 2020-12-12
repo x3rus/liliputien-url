@@ -10,18 +10,6 @@ import string
 import urllib.parse       # for mongodb password
 from urllib.parse import urlparse
 
-# self.bd
-# self.auth : {'user': "oo" , 'password' : "aaa"}
-
-# connection
-# write entry
-#    # entry not already there
-#    # validate value before
-#    # catch BD exception
-# search entry
-#    # manage two resultat choose
-#    # catch BD exception
-
 
 class liliputien():
     """backend class, store urls and business logic"""
@@ -53,7 +41,7 @@ class liliputien():
         self.dbCollection = liliDb.dbUrl                 # TODO check to use self.collection intend of dbUrl
         return self.dbCollection
 
-    def addUrlRedirection(self, urlDestination):
+    def addUrlRedirection(self, urlDestination, shortUrl=None):
         """add an entry in mongodb, validate the entry
             return : dictionnary with url info
             raise : liliputienErrors.urlDontMatchCriteria
@@ -62,9 +50,15 @@ class liliputien():
         if not self._uriValidator(urlDestination):
             raise liliputienErrors.urlDontMatchCriteria
 
-        urlId = self._getUniqUrlId()
-        if urlId is None:
-            raise liliputienErrors.unableGettingUniqUrlID
+        if shortUrl is not None:
+            if self.dbCollection.find_one({'short': shortUrl}):
+                raise liliputienErrors.urlIdMultipleOccurenceFound
+            else:
+                urlId = self._getUniqUrlId()
+        else:
+            urlId = self._getUniqUrlId()
+            if urlId is None:
+                raise liliputienErrors.unableGettingUniqUrlID
 
         MongoEntry = self._writeLiliURL(urlId, urlDestination)
         if MongoEntry is None:

@@ -58,12 +58,30 @@ class liliputienTest(unittest.TestCase):
             urlIsValid = backend._uriValidator(url)
             self.assertFalse(urlIsValid)
 
+    def test_adding_and_get_Url_True(self):
+        """Test method when you want add an URL"""
+        # pylint: disable=W
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        shortUrl, _ = backend.addUrlRedirection("https://www.google.com")
+        entryFound = backend.getUrlRedirection(shortUrl)
+        self.assertEqual(entryFound, "https://www.google.com")
+
     def test_addUrlRedirection_URL_False(self):
         """Test method when you want add an URL"""
         # pylint: disable=W
         backend = liliputien.liliputien()
         with self.assertRaises(liliputienErrors.urlDontMatchCriteria):
             backend.addUrlRedirection("www.google.com")
+
+    def test_addUrlRedirection_URL_with_shorturl_False(self):
+        """Test method when you want add an URL"""
+        # pylint: disable=W
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        with self.assertRaises(liliputienErrors.urlIdMultipleOccurenceFound):
+            backend.addUrlRedirection("http://www.google.com", "/sE8c2D")
 
     def test_getUrlRedirection_Exception(self):
         """Test method to get url destination base on url ID """
@@ -77,7 +95,6 @@ class liliputienTest(unittest.TestCase):
         backend = liliputien.liliputien()
         backend.dbCollection = mongomock.MongoClient().db.collection
         backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
-
         entryFound = backend.getUrlRedirection('/QQa83d')
         self.assertEqual(entryFound, "https://www.lequipe.fr/Football")
 

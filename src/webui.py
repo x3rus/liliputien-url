@@ -2,7 +2,7 @@
 #
 #######################################
 
-from flask import Flask, render_template, flash, redirect,  get_flashed_messages, jsonify, abort
+from flask import Flask, render_template, flash, redirect,  get_flashed_messages, jsonify, abort, request
 # from markupsafe import escape
 from forms.add import UrlCreateEntry
 from liliputien import liliputien
@@ -74,6 +74,11 @@ def show_urlId(urlId):
 
 def convert_url_for_json(url_entry_src):
     """ Change _id entry to string otherwize it cannot be jsonify """
+
+    if isinstance(url_entry_src, dict):
+        url_entry_src['_id'] = str(url_entry_src['_id'])
+        return url_entry_src
+
     indexId = 0
     for url in url_entry_src:
         url_entry_src[indexId]['_id'] = str(url['_id'])
@@ -93,7 +98,7 @@ def get_api_urls():
 
 
 @app.route('/lili/api/v1.0/urls/<string:short_url>', methods=['GET'])
-def get_task(short_url):
+def get_url(short_url):
     try:
         urlTarget = backend.getUrl("/" + short_url)
     except liliputienErrors.urlIdNotFound:
@@ -102,3 +107,27 @@ def get_task(short_url):
         abort(404)
 
     return jsonify({'url': convert_url_for_json(urlTarget)})
+
+
+@app.route('/lili/api/v1.0/urls', methods=['POST'])
+def create_url():
+
+    shortUrlFromUser = None
+    if not request.json or 'urlDst' not in request.json:
+        # TODO Add msg to informe urlDst is requiered
+        abort(400)
+
+    if 'short' in request.json:
+        shortUrlFromUser = request.json['short']
+
+    try:
+        shortUrl, url = backend.addUrlRedirection(request.json['urlDst'], shortUrlFromUser)
+    except liliputienErrors.urlDontMatchCriteria:
+        abort(400)
+    except liliputienErrors.urlIdMultipleOccurenceFound:
+        abort(400)
+    except liliputienErrors.unableWritingUrlEntry:
+        abort(400)
+
+    # TODO faire le unittest
+    return jsonify({'url': convert_url_for_json(url)}), 201
