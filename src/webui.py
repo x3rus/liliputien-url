@@ -100,7 +100,7 @@ def get_api_urls():
 @app.route('/lili/api/v1.0/urls/<string:short_url>', methods=['GET'])
 def get_url(short_url):
     try:
-        urlTarget = backend.getUrl("/" + short_url)
+        urlTarget = backend.getUrl(short_url)
     except liliputienErrors.urlIdNotFound:
         abort(404)
     except liliputienErrors.urlIdMultipleOccurenceFound:
@@ -129,5 +129,17 @@ def create_url():
     except liliputienErrors.unableWritingUrlEntry:
         abort(400)
 
-    # TODO faire le unittest
     return jsonify({'url': convert_url_for_json(url)}), 201
+
+
+@app.route('/lili/api/v1.0/urls/<string:shortUrl>', methods=['PUT'])
+def update_api_url(shortUrl):
+
+    if 'urlDst' not in request.json and type(request.json['urlDst']) != "unicode":
+        abort(400)
+    try:
+        urlUpdated = backend.updateUrls(shortUrl, request.json['urlDst'])
+    except liliputienErrors.urlIdMultipleOccurenceFound:
+        abort(404)
+
+    return jsonify({'url': convert_url_for_json(urlUpdated)})

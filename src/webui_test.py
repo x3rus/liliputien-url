@@ -60,6 +60,15 @@ class liliputienWebTest(unittest.TestCase):
                                  content_type='application/json')
         self.assertIn(b'www.google.com', response.data)
 
+    def test_update_api_url_True(self):
+        """Test add from api"""
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        response = self.app.put('/lili/api/v1.0/urls/QQa83d',
+                                data=json.dumps(dict(urlDst='http://www.google.com')),
+                                content_type='application/json')
+        self.assertIn(b'www.google.com', response.data)
+
     def test_add_form_False(self):
         """Test add form without enter url target """
         backend.dbCollection = mongomock.MongoClient().db.collection
@@ -83,7 +92,13 @@ class liliputienWebTest(unittest.TestCase):
         backend.dbCollection = mongomock.MongoClient().db.collection
         backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
         response = self.app.get('/lili/api/v1.0/urls', follow_redirects=True)
-        self.assertIn(b'"short":"/Dk8c3","urlDst":"http://www.google.com"', response.data)
+        self.assertIn(b'"short":"Dk8c3","urlDst":"http://www.google.com"', response.data)
+
+    def test_update_api_urls_populate_True(self):
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        response = self.app.get('/lili/api/v1.0/urls', follow_redirects=True)
+        self.assertIn(b'"short":"Dk8c3","urlDst":"http://www.google.com"', response.data)
 
     # TODO : add test for validating it's json result
     # def test_get_api_urls_populate_True(self):
@@ -92,7 +107,7 @@ class liliputienWebTest(unittest.TestCase):
         backend.dbCollection = mongomock.MongoClient().db.collection
         backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
         response = self.app.get('/lili/api/v1.0/urls/QQa83d', follow_redirects=True)
-        self.assertIn(b'"short":"/QQa83d","urlDst":"https://www.lequipe.fr/Football"', response.data)
+        self.assertIn(b'"short":"QQa83d","urlDst":"https://www.lequipe.fr/Football"', response.data)
 
     def test_get_api_url_populate_one_url_False(self):
         backend.dbCollection = mongomock.MongoClient().db.collection
@@ -103,13 +118,13 @@ class liliputienWebTest(unittest.TestCase):
 
 def AddFewEntryInMockedMongoDb(collection):
     """ Add few entry in the database and return collection """
-    dbEntry = {"short": "/Dk8c3",
+    dbEntry = {"short": "Dk8c3",
                "urlDst": "http://www.google.com",
                "date": datetime.datetime.utcnow()
                }
     collection.insert_one(dbEntry).inserted_id
 
-    dbEntry = {"short": "/QQa83d",
+    dbEntry = {"short": "QQa83d",
                "urlDst": "https://www.lequipe.fr/Football",
                "date": datetime.datetime.utcnow()
                }

@@ -153,7 +153,7 @@ class liliputienTest(unittest.TestCase):
         entryFound = backend.dbCollection.find_one({'short': '/BaD'})
         self.assertIsNone(entryFound)
 
-    def test_List_Urls_True(self):
+    def test_list_Urls_True(self):
         """Test method when you want retrieve all URLs"""
         backend = liliputien.liliputien()
         backend.dbCollection = mongomock.MongoClient().db.collection
@@ -178,6 +178,22 @@ class liliputienTest(unittest.TestCase):
         backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
         url = backend.getUrl('/aaabbb')
         self.assertEqual(len(url), 0)
+
+    def test_update_url_entry_true(self):
+        """Test method test_update_url_entry_true"""
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        url = backend.updateUrls('/sE8c2D', 'http://lemonde.fr')
+        self.assertEqual(url['urlDst'], 'http://lemonde.fr')
+
+    def test_update_url_entry_False(self):
+        """Test method test_update_url_entry_true"""
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        with self.assertRaises(liliputienErrors.urlIdMultipleOccurenceFound):
+            backend.updateUrls('/aaaa', 'http://lemonde.fr')
 
 
 def AddFewEntryInMockedMongoDb(collection):

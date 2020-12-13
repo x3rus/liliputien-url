@@ -88,7 +88,26 @@ class liliputien():
         """
 
         return list(self.dbCollection.find())
-#        return list(self.dbCollection.find({}, {'_id': False}))
+
+    def updateUrls(self, urlId, urlDstUpdate=None, newDate=None):
+        """ update url information
+            param: urlId short url to be able change information
+                   urlDstUpdate New url destination
+                   newDate new date datetime.datetime
+            return: url entry from mongo
+        """
+        countUrlId = self.dbCollection.count_documents({"short": urlId})
+
+        if countUrlId == 0:
+            raise liliputienErrors.urlIdMultipleOccurenceFound
+
+        if urlDstUpdate is not None:
+            self.dbCollection.update_one({"short": urlId}, {"$set": {"urlDst": urlDstUpdate}})
+
+        if newDate is not None:
+            self.dbCollection.update_one({"short": urlId}, {"$set": {"date": newDate}})
+
+        return self.dbCollection.find_one({"short": urlId})
 
     def getUrl(self, short_url, strict=False):
         """ retrieve one url from database base one the short_url
