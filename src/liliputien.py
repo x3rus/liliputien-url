@@ -99,7 +99,7 @@ class liliputien():
         countUrlId = self.dbCollection.count_documents({"short": urlId})
 
         if countUrlId == 0:
-            raise liliputienErrors.urlIdMultipleOccurenceFound
+            raise liliputienErrors.urlIdNotFound
 
         if urlDstUpdate is not None:
             self.dbCollection.update_one({"short": urlId}, {"$set": {"urlDst": urlDstUpdate}})
@@ -108,6 +108,17 @@ class liliputien():
             self.dbCollection.update_one({"short": urlId}, {"$set": {"date": newDate}})
 
         return self.dbCollection.find_one({"short": urlId})
+
+    def deleteUrl(self, urlId):
+        """ delete url information
+            param: urlId short url to be able change information
+            return: url entry from mongo
+        """
+        countUrlId = self.dbCollection.count_documents({"short": urlId})
+
+        if countUrlId == 0:
+            raise liliputienErrors.urlIdNotFound
+        return self.dbCollection.delete_one({"short": urlId})
 
     def getUrl(self, short_url, strict=False):
         """ retrieve one url from database base one the short_url

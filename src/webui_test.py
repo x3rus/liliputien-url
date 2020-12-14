@@ -100,6 +100,18 @@ class liliputienWebTest(unittest.TestCase):
         response = self.app.get('/lili/api/v1.0/urls', follow_redirects=True)
         self.assertIn(b'"short":"Dk8c3","urlDst":"http://www.google.com"', response.data)
 
+    def test_delete_api_urls_populate_True(self):
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        response = self.app.delete('/lili/api/v1.0/urls/Dk8c3')
+        self.assertEqual(response.status_code, 200)
+
+    def test_delete_api_urls_populate_False(self):
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        response = self.app.delete('/lili/api/v1.0/urls/blablabla')
+        self.assertEqual(response.status_code, 404)
+
     # TODO : add test for validating it's json result
     # def test_get_api_urls_populate_True(self):
 

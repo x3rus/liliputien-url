@@ -139,7 +139,18 @@ def update_api_url(shortUrl):
         abort(400)
     try:
         urlUpdated = backend.updateUrls(shortUrl, request.json['urlDst'])
-    except liliputienErrors.urlIdMultipleOccurenceFound:
+    except liliputienErrors.urlIdNotFound:
         abort(404)
 
     return jsonify({'url': convert_url_for_json(urlUpdated)})
+
+
+@app.route('/lili/api/v1.0/urls/<string:shortUrl>', methods=['DELETE'])
+def delete_api_url(shortUrl):
+
+    try:
+        backend.deleteUrl(shortUrl)
+    except liliputienErrors.urlIdNotFound:
+        abort(404)
+
+    return jsonify({'result': True})

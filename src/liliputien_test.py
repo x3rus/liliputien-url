@@ -192,8 +192,23 @@ class liliputienTest(unittest.TestCase):
         backend = liliputien.liliputien()
         backend.dbCollection = mongomock.MongoClient().db.collection
         backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
-        with self.assertRaises(liliputienErrors.urlIdMultipleOccurenceFound):
+        with self.assertRaises(liliputienErrors.urlIdNotFound):
             backend.updateUrls('/aaaa', 'http://lemonde.fr')
+
+    def test_delete_url_entry_False(self):
+        """Test method test_update_url_entry_true"""
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        with self.assertRaises(liliputienErrors.urlIdNotFound):
+            backend.deleteUrl('849323')
+
+    def test_delete_url_entry_True(self):
+        """Test method test_update_url_entry_true"""
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        backend.deleteUrl('/sE8c2D')
 
 
 def AddFewEntryInMockedMongoDb(collection):
