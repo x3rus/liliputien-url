@@ -10,18 +10,6 @@ import string
 import urllib.parse       # for mongodb password
 from urllib.parse import urlparse
 
-# self.bd
-# self.auth : {'user': "oo" , 'password' : "aaa"}
-
-# connection
-# write entry
-#    # entry not already there
-#    # validate value before
-#    # catch BD exception
-# search entry
-#    # manage two resultat choose
-#    # catch BD exception
-
 
 class liliputien():
     """backend class, store urls and business logic"""
@@ -53,7 +41,7 @@ class liliputien():
         self.dbCollection = liliDb.dbUrl                 # TODO check to use self.collection intend of dbUrl
         return self.dbCollection
 
-    def addUrlRedirection(self, urlDestination):
+    def addUrlRedirection(self, urlDestination, shortUrl=None):
         """add an entry in mongodb, validate the entry
             return : dictionnary with url info
             raise : liliputienErrors.urlDontMatchCriteria
@@ -62,9 +50,15 @@ class liliputien():
         if not self._uriValidator(urlDestination):
             raise liliputienErrors.urlDontMatchCriteria
 
-        urlId = self._getUniqUrlId()
-        if urlId is None:
-            raise liliputienErrors.unableGettingUniqUrlID
+        if shortUrl is not None:
+            if self.dbCollection.find_one({'short': shortUrl}):
+                raise liliputienErrors.urlIdMultipleOccurenceFound
+            else:
+                urlId = self._getUniqUrlId()
+        else:
+            urlId = self._getUniqUrlId()
+            if urlId is None:
+                raise liliputienErrors.unableGettingUniqUrlID
 
         MongoEntry = self._writeLiliURL(urlId, urlDestination)
         if MongoEntry is None:
@@ -87,6 +81,52 @@ class liliputien():
             raise liliputienErrors.urlIdNotFound
 
         return lstUrlFound[0]['urlDst']
+
+    def getUrls(self, strict=False):
+        """ retrieve all url from database
+            return: table of dictionnary
+        """
+
+        return list(self.dbCollection.find())
+
+    def updateUrls(self, urlId, urlDstUpdate=None, newDate=None):
+        """ update url information
+            param: urlId short url to be able change information
+                   urlDstUpdate New url destination
+                   newDate new date datetime.datetime
+            return: url entry from mongo
+        """
+        countUrlId = self.dbCollection.count_documents({"short": urlId})
+
+        if countUrlId == 0:
+            raise liliputienErrors.urlIdNotFound
+
+        if urlDstUpdate is not None:
+            self.dbCollection.update_one({"short": urlId}, {"$set": {"urlDst": urlDstUpdate}})
+
+        if newDate is not None:
+            self.dbCollection.update_one({"short": urlId}, {"$set": {"date": newDate}})
+
+        return self.dbCollection.find_one({"short": urlId})
+
+    def deleteUrl(self, urlId):
+        """ delete url information
+            param: urlId short url to be able change information
+            return: url entry from mongo
+        """
+        countUrlId = self.dbCollection.count_documents({"short": urlId})
+
+        if countUrlId == 0:
+            raise liliputienErrors.urlIdNotFound
+        return self.dbCollection.delete_one({"short": urlId})
+
+    def getUrl(self, short_url, strict=False):
+        """ retrieve one url from database base one the short_url
+            param : string short_url
+            return: table of dictionnary
+        """
+
+        return list(self.dbCollection.find({"short": short_url}))
 
     def _getRandomURLId(self, size=None, chars=string.ascii_uppercase + string.digits + string.ascii_lowercase):
         """ Generate the random ID /fk8dS3 """

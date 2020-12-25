@@ -4,9 +4,9 @@
 import liliputien
 import liliputienErrors
 import datetime
-import pymongo
 import unittest
 import mongomock
+# import pymongo
 
 
 class liliputienTest(unittest.TestCase):
@@ -58,12 +58,30 @@ class liliputienTest(unittest.TestCase):
             urlIsValid = backend._uriValidator(url)
             self.assertFalse(urlIsValid)
 
+    def test_adding_and_get_Url_True(self):
+        """Test method when you want add an URL"""
+        # pylint: disable=W
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        shortUrl, _ = backend.addUrlRedirection("https://www.google.com")
+        entryFound = backend.getUrlRedirection(shortUrl)
+        self.assertEqual(entryFound, "https://www.google.com")
+
     def test_addUrlRedirection_URL_False(self):
         """Test method when you want add an URL"""
         # pylint: disable=W
         backend = liliputien.liliputien()
         with self.assertRaises(liliputienErrors.urlDontMatchCriteria):
-            idURL = backend.addUrlRedirection("www.google.com")
+            backend.addUrlRedirection("www.google.com")
+
+    def test_addUrlRedirection_URL_with_shorturl_False(self):
+        """Test method when you want add an URL"""
+        # pylint: disable=W
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        with self.assertRaises(liliputienErrors.urlIdMultipleOccurenceFound):
+            backend.addUrlRedirection("http://www.google.com", "/sE8c2D")
 
     def test_getUrlRedirection_Exception(self):
         """Test method to get url destination base on url ID """
@@ -77,7 +95,6 @@ class liliputienTest(unittest.TestCase):
         backend = liliputien.liliputien()
         backend.dbCollection = mongomock.MongoClient().db.collection
         backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
-
         entryFound = backend.getUrlRedirection('/QQa83d')
         self.assertEqual(entryFound, "https://www.lequipe.fr/Football")
 
@@ -96,7 +113,7 @@ class liliputienTest(unittest.TestCase):
         backend.dbCollection.insert_one(dbEntry).inserted_id
 
         with self.assertRaises(liliputienErrors.urlIdMultipleOccurenceFound):
-            entryFound = backend.getUrlRedirection(urlId='/QQa83d', strict=True)
+            backend.getUrlRedirection(urlId='/QQa83d', strict=True)
 
     def test_getUrlRedirection_TrueMultiple(self):
         """Test method to get url destination base on url ID """
@@ -135,6 +152,63 @@ class liliputienTest(unittest.TestCase):
         backend._writeLiliURL(urlId="Fksi3s", urlTarget="https://www.google.com")
         entryFound = backend.dbCollection.find_one({'short': '/BaD'})
         self.assertIsNone(entryFound)
+
+    def test_list_Urls_True(self):
+        """Test method when you want retrieve all URLs"""
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        urls = backend.getUrls()
+        self.assertEqual(urls[0]['urlDst'], "http://www.google.com")
+        self.assertEqual(urls[1]['short'], "/sE8c2D")
+
+    def test_get_url_base_on_short_True(self):
+        """Test method get_url with short_url parameter"""
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        url = backend.getUrl('/sE8c2D')
+        self.assertEqual(url[0]['urlDst'], "https://www.linuxfr.org")
+        self.assertEqual(url[0]['short'], "/sE8c2D")
+
+    def test_get_url_base_on_short_False(self):
+        """Test method get_url with short_url parameter"""
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        url = backend.getUrl('/aaabbb')
+        self.assertEqual(len(url), 0)
+
+    def test_update_url_entry_true(self):
+        """Test method test_update_url_entry_true"""
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        url = backend.updateUrls('/sE8c2D', 'http://lemonde.fr')
+        self.assertEqual(url['urlDst'], 'http://lemonde.fr')
+
+    def test_update_url_entry_False(self):
+        """Test method test_update_url_entry_true"""
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        with self.assertRaises(liliputienErrors.urlIdNotFound):
+            backend.updateUrls('/aaaa', 'http://lemonde.fr')
+
+    def test_delete_url_entry_False(self):
+        """Test method test_update_url_entry_true"""
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        with self.assertRaises(liliputienErrors.urlIdNotFound):
+            backend.deleteUrl('849323')
+
+    def test_delete_url_entry_True(self):
+        """Test method test_update_url_entry_true"""
+        backend = liliputien.liliputien()
+        backend.dbCollection = mongomock.MongoClient().db.collection
+        backend.dbCollection = AddFewEntryInMockedMongoDb(backend.dbCollection)
+        backend.deleteUrl('/sE8c2D')
 
 
 def AddFewEntryInMockedMongoDb(collection):
