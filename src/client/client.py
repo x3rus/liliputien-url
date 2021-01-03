@@ -16,9 +16,6 @@ class liliputienClient():
 
     def health_check(self):
         response = requests.get(self.host_url + "/health")
-        print(response.status_code)
-        print(response.content)
-        print(self.host_url + "/health")
         if response.status_code >= 200 and response.status_code < 300:
             return True
         return False

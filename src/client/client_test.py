@@ -34,7 +34,20 @@ class liliputienClientTest(unittest.TestCase):
     """unittest for liliputien client class"""
 
     # We patch 'requests.get' with our own method. The mock object is passed in to our test case method.
-    def test_liliputien_client_health_check(self):
+    def test_liliputien_client_health_True_check(self):
+        """Test method health_check """
+        lili = client.liliputienClient("http://127.0.0.1:5000")
+        # credit to https://bhch.github.io/posts/2017/09/python-testing-how-to-mock-requests-during-tests/
+        with patch('requests.get') as mock_request:
+            # return code
+            mock_request.return_value.status_code = 200
+            # fake content
+            mock_request.return_value.content = "Ok"
+            result = lili.health_check()
+            self.assertEqual(result, True)
+
+    # We patch 'requests.get' with our own method. The mock object is passed in to our test case method.
+    def test_liliputien_client_health_False_check(self):
         """Test method health_check """
         lili = client.liliputienClient("http://127.0.0.1:5000")
         # credit to https://bhch.github.io/posts/2017/09/python-testing-how-to-mock-requests-during-tests/
@@ -45,14 +58,6 @@ class liliputienClientTest(unittest.TestCase):
             mock_request.return_value.content = "Fake content"
             result = lili.health_check()
             self.assertEqual(result, False)
-
-    # We patch 'requests.get' with our own method. The mock object is passed in to our test case method.
-#    @unittest.mock.patch('requests.get', side_effect=mocked_requests_get)
-#    def test_liliputien_client_bad_health_check(self):
-#        """Test method health_check """
-#        lili = client.liliputienClient('http://unhealty.url.com:5000/health')
-#        result = lili.health_check()
-#        self.assertEqual(result, 500)
 
 
 if __name__ == "__main__":
