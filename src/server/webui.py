@@ -98,7 +98,7 @@ def get_api_urls():
 
 
 @app.route('/lili/api/v1.0/urls/<string:short_url>', methods=['GET'])
-def get_url(short_url):
+def get_api_url(short_url):
     try:
         urlTarget = backend.getUrl(short_url)
     except liliputienErrors.urlIdNotFound:
@@ -110,7 +110,7 @@ def get_url(short_url):
 
 
 @app.route('/lili/api/v1.0/urls', methods=['POST'])
-def create_url():
+def create_api_url():
 
     shortUrlFromUser = None
     if not request.json or 'urlDst' not in request.json:
