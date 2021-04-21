@@ -12,24 +12,6 @@ import client
 # TODO the solution I think : https://auth0.com/blog/mocking-api-calls-in-python/#Mocking-a-Whole-Function
 
 
-# This method will be used by the mock to replace requests.get
-def mocked_requests_get(*args, **kwargs):
-    class MockResponse:
-        def __init__(self, json_data, status_code):
-            self.json_data = json_data
-            self.status_code = status_code
-
-        def json(self):
-            return self.json_data
-
-    if args[0] == 'http://127.0.0.1:5000/health':
-        return MockResponse(None, 200)
-    elif args[0] == 'http://unhealty.url.com:5000/health':
-        return MockResponse(None, 500)
-
-    return MockResponse(None, 404)
-
-
 class liliputienClientTest(unittest.TestCase):
     """unittest for liliputien client class"""
 
